@@ -55,10 +55,10 @@ module DependencyRisk
                    raise 'Target directory or SBOM is required for Grype'
                  end
 
-        output, status = Open3.capture2e('grype', target, '-o', 'json', '--add-cpes-if-none')
-        raise "Grype execution failed: #{output}" unless status.success?
+        stdout, stderr, status = Open3.capture3('grype', target, '-o', 'json', '--add-cpes-if-none')
+        raise "Grype execution failed: #{stderr.empty? ? stdout : stderr}" unless status.success?
 
-        JSON.parse(output)
+        JSON.parse(stdout)
       end
 
       def expanded_file(path)

@@ -36,10 +36,10 @@ module DependencyRisk
         raise "Directory #{directory} does not exist" unless Dir.exist?(directory)
         raise 'syft executable not found' unless executable?('syft')
 
-        output, status = Open3.capture2e('syft', '-o', 'syft-json', directory)
-        raise "Syft execution failed: #{output}" unless status.success?
+        stdout, stderr, status = Open3.capture3('syft', '-o', 'syft-json', directory)
+        raise "Syft execution failed: #{stderr.empty? ? stdout : stderr}" unless status.success?
 
-        JSON.parse(output)
+        JSON.parse(stdout)
       end
 
       def expanded_file(path)
