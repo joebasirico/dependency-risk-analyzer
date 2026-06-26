@@ -1,4 +1,3 @@
-require 'csv'
 require 'fileutils'
 require 'json'
 
@@ -26,6 +25,8 @@ module DependencyRisk
       end
 
       def write_csv(path)
+        require 'csv'
+
         FileUtils.mkdir_p(File.dirname(path))
         CSV.open(path, 'wb') do |csv|
           csv << %w[name type version direct risk_score license_status critical high medium low vulnerabilities introduced_by factors]
@@ -48,6 +49,10 @@ module DependencyRisk
             ]
           end
         end
+      rescue LoadError => e
+        raise e unless e.path == 'csv'
+
+        raise 'CSV output requires the csv gem. Run bin/setup with the same Ruby used to run bin/dependency-risk.'
       end
 
       def terminal

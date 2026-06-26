@@ -27,8 +27,13 @@ license policy checks, optional ecosystem enrichment, and deterministic risk sco
 Install gems:
 
 ```bash
-bundle install
+bin/setup
 ```
+
+The executable isolates gems under `.bundle/gems/<ruby-version>-<ruby-arch>` so
+native extensions from another Ruby build in `~/.gem` cannot be loaded by
+accident. Run `bin/setup` once for each Ruby build you use, for example after
+switching between a Nix-provided Ruby and a locally installed Ruby.
 
 ## Usage
 

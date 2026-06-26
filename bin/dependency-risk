@@ -2,6 +2,10 @@
 
 $LOAD_PATH.unshift(File.expand_path('../lib', __dir__))
 
+require 'dependency_risk/boot'
+
+DependencyRisk::Boot.isolate_gems!
+
 require 'dependency_risk/cli'
 
 exit DependencyRisk::CLI.new(ARGV).run
