@@ -7,6 +7,7 @@ module DependencyRisk
       cache_dir: '.dependency-risk-cache',
       force: false,
       format: %w[terminal],
+      color: 'auto',
       grype: true,
       grype_path: nil,
       enrich: false,
@@ -60,6 +61,7 @@ module DependencyRisk
         opts.on('--cache-dir DIR', 'Cache directory') { |value| options[:cache_dir] = value }
         opts.on('--force', 'Refresh cached remote API responses') { options[:force] = true }
         opts.on('--format LIST', 'terminal,json,csv') { |value| options[:format] = value.split(',').map(&:strip) }
+        opts.on('--color MODE', 'Color terminal output: auto, always, never') { |value| options[:color] = value }
         opts.on('--output BASE', 'Output base path for JSON/CSV') { |value| options[:output] = value }
         opts.on('--help', 'Show help') do
           puts opts
@@ -89,6 +91,7 @@ module DependencyRisk
         opts.on('--cache-dir DIR', 'Cache directory') { |value| options[:cache_dir] = value }
         opts.on('--force', 'Refresh cached remote API responses') { options[:force] = true }
         opts.on('--format LIST', 'terminal,json,csv') { |value| options[:format] = value.split(',').map(&:strip) }
+        opts.on('--color MODE', 'Color terminal output: auto, always, never') { |value| options[:color] = value }
         opts.on('--output BASE', 'Output base path for JSON/CSV') { |value| options[:output] = value }
         opts.on('--help', 'Show help') do
           puts opts
@@ -108,9 +111,22 @@ module DependencyRisk
 
     def emit(writer, options)
       formats = options[:format]
-      puts writer.terminal if formats.include?('terminal')
+      puts writer.terminal(color: color?(options[:color])) if formats.include?('terminal')
       writer.write_json("#{options[:output]}.json") if formats.include?('json')
       writer.write_csv("#{options[:output]}.csv") if formats.include?('csv')
+    end
+
+    def color?(mode)
+      case mode
+      when 'always'
+        true
+      when 'never'
+        false
+      when 'auto'
+        $stdout.tty? && !ENV.key?('NO_COLOR')
+      else
+        raise ArgumentError, 'Color mode must be auto, always, or never'
+      end
     end
 
     def help

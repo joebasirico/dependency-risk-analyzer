@@ -92,6 +92,7 @@ usage: dependency-risk scan [options]
     --cache-dir DIR
     --force
     --format terminal,json,csv
+    --color auto|always|never
     --output BASE
 ```
 
@@ -109,6 +110,7 @@ usage: dependency-risk dependency [options]
     --cache-dir DIR
     --force
     --format terminal,json,csv
+    --color auto|always|never
     --output BASE
 ```
 
