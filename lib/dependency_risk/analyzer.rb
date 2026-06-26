@@ -81,10 +81,8 @@ module DependencyRisk
       end
 
       github = Enrichment::Github.new(cache: @cache)
-      packages.each do |package|
-        libraries_io.enrich!(package)
-        github.enrich!(package) if package.repository_url
-      end
+      packages.each { |package| libraries_io.enrich!(package) }
+      github.enrich_all!(packages)
     end
 
     def enrich_nvd(packages)

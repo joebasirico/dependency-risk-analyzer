@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'date'
 require 'json'
 
 module DependencyRisk
@@ -86,16 +87,14 @@ module DependencyRisk
           lines << colors.green.call('✓ No package risk factors found.')
         else
           lines << colors.bold.call('Top Risk Packages:')
-          top.each do |package|
-            vuln_ids = package.vulnerabilities.map(&:id).uniq
-            style = risk_style(colors, package.risk_score)
-            direct = package.direct ? 'yes' : 'no'
-            risk = style.call("risk=#{package.risk_score}")
-            lines << "  #{style.call(risk_icon(package.risk_score))} #{package.type} #{package.name} #{package.version}  #{risk}  direct=#{direct}"
-            lines << "    #{colors.red.call('✚')} CVEs: #{vuln_ids.join(', ')}" unless vuln_ids.empty?
-            lines << "    #{colors.cyan.call('↳')} Introduced by: #{package.introduced_by.join(', ')}" unless package.introduced_by.empty?
-            lines << "    #{colors.yellow.call('•')} Factors: #{package.risk_factors.join('; ')}" unless package.risk_factors.empty?
-          end
+          lines.concat(risk_table(colors, top))
+        end
+
+        github_packages = sorted_packages.select { |package| github_health?(package) }.first(20)
+        if github_packages.any?
+          lines << ''
+          lines << colors.bold.call('GitHub Repository Health:')
+          lines.concat(github_health_table(colors, github_packages))
         end
 
         lines.join("\n")
@@ -177,6 +176,142 @@ module DependencyRisk
         else
           colors.blue
         end
+      end
+
+      def risk_table(colors, packages)
+        rows = packages.map do |package|
+          [
+            risk_cell(colors, package.risk_score),
+            package_label(package),
+            package.version.to_s,
+            package.direct ? 'yes' : 'no',
+            vulnerability_counts_cell(colors, package),
+            cve_count_cell(colors, package),
+            factors_cell(package)
+          ]
+        end
+
+        table_lines(colors, ['Risk', 'Package', 'Version', 'Direct', 'Vulns', 'CVEs', 'Factors'], rows, right: [5])
+      end
+
+      def risk_cell(colors, score)
+        style = risk_style(colors, score)
+        "#{style.call(risk_icon(score))} #{style.call(score.to_i.to_s)}"
+      end
+
+      def vulnerability_counts_cell(colors, package)
+        counts = package.vulnerability_counts
+        parts = [
+          ['critical', 'C', colors.magenta],
+          ['high', 'H', colors.red],
+          ['medium', 'M', colors.yellow],
+          ['low', 'L', colors.blue]
+        ].filter_map do |severity, label, style|
+          count = counts[severity].to_i
+          style.call("#{label}=#{count}") if count.positive?
+        end
+
+        parts.empty? ? colors.green.call('none') : parts.join(' ')
+      end
+
+      def cve_count_cell(colors, package)
+        count = package.vulnerabilities.map(&:id).uniq.count
+        style = count.positive? ? colors.red : colors.green
+        style.call(count.to_s)
+      end
+
+      def factors_cell(package)
+        package.risk_factors.empty? ? 'none' : package.risk_factors.join('; ')
+      end
+
+      def github_health?(package)
+        github = package.github || {}
+        github.key?('issues') || github.key?('prs') || github.key?('last_commit')
+      end
+
+      def github_health_table(colors, packages)
+        rows = packages.map do |package|
+          github_health_row(colors, package)
+        end
+
+        table_lines(colors, ['Package', 'Version', 'Issues', 'PRs', 'Last Commit', 'Age'], rows, right: [2, 3, 5])
+      end
+
+      def github_health_row(colors, package)
+        github = package.github || {}
+        commit_date, commit_age, age_days = github_commit_parts(github['last_commit'])
+        [
+          package_label(package),
+          package.version.to_s,
+          github_count(colors, github['issues'], warning_over: 20),
+          github_count(colors, github['prs'], warning_over: 20),
+          github_commit_value(colors, commit_date, age_days),
+          github_commit_value(colors, commit_age, age_days)
+        ]
+      end
+
+      def github_count(colors, value, warning_over: nil)
+        return colors.cyan.call('unknown') if value.nil?
+
+        count = value.to_i
+        style = warning_over && count > warning_over ? colors.yellow : colors.blue
+        style.call(count.to_s)
+      end
+
+      def github_commit_parts(value)
+        return ['unknown', 'unknown', nil] if value.nil? || value.to_s.empty?
+
+        date = DateTime.parse(value.to_s)
+        days_old = (DateTime.now - date).to_i
+        [date.strftime('%Y-%m-%d'), "#{days_old}d", days_old]
+      rescue ArgumentError
+        [value.to_s, 'unknown', nil]
+      end
+
+      def github_commit_value(colors, value, days_old)
+        style = if days_old.nil?
+                  colors.cyan
+                elsif days_old > 365
+                  colors.red
+                elsif days_old > 180
+                  colors.yellow
+                else
+                  colors.green
+                end
+        style.call(value)
+      end
+
+      def package_label(package)
+        "#{package.type}/#{package.name}"
+      end
+
+      def table_lines(colors, headers, rows, right: [])
+        widths = headers.each_index.map do |index|
+          ([headers[index]] + rows.map { |row| row[index] }).map { |cell| visible_width(cell) }.max
+        end
+
+        [
+          '  ' + format_table_row(headers.map { |header| colors.bold.call(header) }, widths, right),
+          '  ' + widths.map { |width| '-' * width }.join('  '),
+          *rows.map { |row| '  ' + format_table_row(row, widths, right) }
+        ]
+      end
+
+      def format_table_row(row, widths, right)
+        row.each_with_index.map do |cell, index|
+          align = right.include?(index) ? :right : :left
+          pad_cell(cell, widths[index], align)
+        end.join('  ')
+      end
+
+      def pad_cell(value, width, align)
+        text = value.to_s
+        padding = [width - visible_width(text), 0].max
+        align == :right ? "#{' ' * padding}#{text}" : "#{text}#{' ' * padding}"
+      end
+
+      def visible_width(value)
+        value.to_s.gsub(/\e\[[\d;]*m/, '').length
       end
 
       def sorted_packages

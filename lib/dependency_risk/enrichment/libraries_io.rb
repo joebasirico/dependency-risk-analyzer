@@ -25,8 +25,14 @@ module DependencyRisk
 
       def initialize(cache:, api_key: nil)
         @cache = cache
-        @api_key = api_key || Credentials.fetch('LIBRARIES_IO_API_KEY',
-                                                 'op://Private/Libraries.ioAPIToken/credential')
+        @api_key = api_key || Credentials.fetch(
+          'LIBRARIES_IO_API_KEY',
+          [
+            'op://Personal/Libraries.ioAPIToken/credential',
+            'op://Private/Libraries.ioAPIToken/credential',
+            'op://Employee/Libraries.ioAPIToken/credential'
+          ]
+        )
         @http = HttpJsonClient.new(allowed_host: HOST)
       end
 

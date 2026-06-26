@@ -9,7 +9,13 @@ module DependencyRisk
       def initialize(cache:)
         @cache = cache
         @http = HttpJsonClient.new(allowed_host: HOST)
-        @api_key = Credentials.fetch('NVD_API_KEY', 'op://Private/NVDAPIKey/credential')
+        @api_key = Credentials.fetch(
+          'NVD_API_KEY',
+          [
+            'op://Personal/NVDAPIKey/credential',
+            'op://Private/NVDAPIKey/credential'
+          ]
+        )
       end
 
       def enrich!(package)

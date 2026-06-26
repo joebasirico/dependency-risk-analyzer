@@ -9,8 +9,8 @@ class ReportWriterTest < Minitest::Test
 
     assert_includes output, '◆ Dependency Risk Analysis'
     assert_includes output, '⚠ Warnings:'
-    assert_includes output, '▲ gem rack 2.2.6'
-    assert_includes output, '✚ CVEs: CVE-ONE'
+    assert_match(/Risk\s+Package\s+Version\s+Direct\s+Vulns\s+CVEs\s+Factors/, output)
+    assert_match(/▲ 40\s+gem\/rack\s+2\.2\.6\s+yes\s+H=1\s+1\s+1 high vulnerability/, output)
     refute_includes output, "\e["
   end
 
@@ -20,7 +20,23 @@ class ReportWriterTest < Minitest::Test
     output = writer.terminal(color: true)
 
     assert_includes output, "\e["
-    assert_includes output, 'risk=40'
+    assert_includes output, '40'
+  end
+
+  def test_terminal_output_includes_github_repository_health
+    package = risky_package
+    package.github = {
+      'issues' => 3,
+      'prs' => 2,
+      'last_commit' => '2026-06-01T12:00:00Z'
+    }
+    writer = DependencyRisk::Report::Writer.new(packages: [package])
+
+    output = writer.terminal(color: false)
+
+    assert_includes output, 'GitHub Repository Health:'
+    assert_match(/Package\s+Version\s+Issues\s+PRs\s+Last Commit\s+Age/, output)
+    assert_match(/gem\/rack\s+2\.2\.6\s+3\s+2\s+2026-06-01\s+\d+d/, output)
   end
 
   private

@@ -21,7 +21,8 @@ module DependencyRisk
 
           points = SEVERITY_WEIGHTS.fetch(severity, 2) * count
           score += points
-          factors << "#{count} #{severity} vulnerability#{'ies' if count != 1}"
+          noun = count == 1 ? 'vulnerability' : 'vulnerabilities'
+          factors << "#{count} #{severity} #{noun}"
         end
 
         if package.vulnerabilities.any? && package.direct
