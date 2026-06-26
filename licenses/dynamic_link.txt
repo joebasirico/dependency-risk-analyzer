@@ -1,0 +1,8 @@
+# These licenses must be dynamically, not statically, linked
+MPL
+MPL-2.0
+EPL
+Eclipse Public License
+Eclipse Public License 1.0
+Eclipse Public License - v 1.0
+EPL 2.0

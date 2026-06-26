@@ -1,0 +1,6 @@
+# These licenses require attribution
+LGPL
+LGPL-2.1
+Eclipse Distribution License (EDL)
+EDL
+GPL2 w/ CPE

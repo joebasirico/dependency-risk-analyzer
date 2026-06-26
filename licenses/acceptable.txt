@@ -1,0 +1,22 @@
+# These licenses are acceptable
+MIT
+Ruby
+BSD
+ISC
+CC0
+OWF
+JSON
+MIT License
+The MIT License (MIT)
+Apache-2.0
+Apache License 2.0
+BSD-2-Clause
+BSD-3-Clause
+BSD-4-Clause
+CC0-1.0
+Unlicense
+2-clause BSDL
+Apache 2
+Apache License
+The Apache Software License
+Apache 2.0

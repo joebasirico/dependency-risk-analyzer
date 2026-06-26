@@ -1,0 +1,7 @@
+# These licenses are not acceptable
+OSL
+GPL
+AGPL
+BSL
+GPL-2.0
+GNU GPL 3

@@ -1,0 +1,50 @@
+{
+  "matches": [
+    {
+      "artifact": {
+        "name": "rack",
+        "type": "gem",
+        "version": "2.2.6"
+      },
+      "vulnerability": {
+        "id": "CVE-ONE",
+        "severity": "High",
+        "fix": {
+          "versions": [
+            "2.2.8"
+          ]
+        }
+      }
+    },
+    {
+      "artifact": {
+        "name": "rack",
+        "type": "gem",
+        "version": "2.2.7"
+      },
+      "vulnerability": {
+        "id": "CVE-TWO",
+        "severity": "Critical",
+        "fix": {
+          "versions": [
+            "2.2.8"
+          ]
+        }
+      }
+    },
+    {
+      "artifact": {
+        "name": "react",
+        "type": "npm",
+        "version": "18.0.0"
+      },
+      "vulnerability": {
+        "id": "CVE-THREE",
+        "severity": "Low",
+        "fix": {
+          "versions": []
+        }
+      }
+    }
+  ]
+}

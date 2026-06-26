@@ -1,0 +1,13 @@
+.DS_Store
+tmp/
+.dependency-risk-cache/
+coverage/
+
+.env
+.env.*
+
+syft.json
+grype.json
+dependency-risk-report.json
+dependency-risk-report.csv
+*.log
