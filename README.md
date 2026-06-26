@@ -16,14 +16,19 @@ license policy checks, optional ecosystem enrichment, and deterministic risk sco
 
 ## Requirements
 
-- Ruby 2.6 or newer. Ruby 3.4.7 is recommended.
+- Ruby 4.0.5.
+- Bundler 4.0.15.
 - Syft for directory SBOM generation.
 - Grype for local vulnerability matching.
 - `LIBRARIES_IO_API_KEY` for Libraries.io enrichment and dependency graph expansion.
 - `NVD_API_KEY` for faster NVD enrichment.
 - Optional `GITHUB_TOKEN` for higher GitHub API limits.
 
-No non-stdlib Ruby gems are required for the current CLI.
+Install gems:
+
+```bash
+bundle install
+```
 
 ## Usage
 
@@ -127,7 +132,7 @@ The old tools map into the new modules like this:
 Run tests:
 
 ```bash
-ruby -Itest test/*_test.rb
+bundle exec rake test
 ```
 
 Run a fixture-backed smoke test:

@@ -1,0 +1,42 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    csv (3.3.5)
+    date (3.5.1)
+    digest (3.2.1)
+    drb (2.2.3)
+    fileutils (1.8.0)
+    json (2.20.0)
+    minitest (6.0.6)
+      drb (~> 2.0)
+      prism (~> 1.5)
+    net-http (0.9.1)
+      uri (>= 0.11.1)
+    open3 (0.2.1)
+    optparse (0.8.1)
+    prism (1.9.0)
+    rake (13.4.2)
+    uri (1.1.1)
+
+PLATFORMS
+  arm64-darwin-25
+  ruby
+
+DEPENDENCIES
+  csv (= 3.3.5)
+  date (= 3.5.1)
+  digest (= 3.2.1)
+  fileutils (= 1.8.0)
+  json (= 2.20.0)
+  minitest (= 6.0.6)
+  net-http (= 0.9.1)
+  open3 (= 0.2.1)
+  optparse (= 0.8.1)
+  rake (= 13.4.2)
+  uri (= 1.1.1)
+
+RUBY VERSION
+  ruby 4.0.5p0
+
+BUNDLED WITH
+  4.0.15
